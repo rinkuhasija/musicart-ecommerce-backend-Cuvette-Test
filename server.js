@@ -3,10 +3,12 @@ require('dotenv').config()
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const connectDB = require('./config/db');
-const User = require("./model/userModel");
+const User = require("./models/userModel")
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const Product = require("./model/productModel");
+const Product = require("./models/productModel");
+const authRoutes = require("./routes/authRoute");
+const hashedPassword = require("./helpers/authHelper");
 // const auth = require('./middleware/auth');
 // const validateJobPost = require('./middleware/validateJobPost');
 const app = express();
@@ -21,6 +23,9 @@ app.use(express.json());
 app.use(bodyParser.json());
 app.use(cors());
 
+//routes
+app.use('/api/v1/auth', authRoutes);
+
 //server status
 app.get('/', async (req, res) => {
   try {
@@ -30,56 +35,10 @@ app.get('/', async (req, res) => {
   }
 });
 
-//register
-app.post('/register', async (req, res) => {
-  try {
-    const { full_name, mobile, email, password } = req.body;
 
-    //validate input
-    if (!(email && password && full_name && mobile)) {
-      res.status(400).send("All input is required");
-    }
-
-    // check if user already exist
-    const oldUser = await User.findOne({ email });
-
-    if (oldUser) {
-      return res.status(409).send("User Already Exist. Please Login");
-    }
-
-    //Encrypt user password
-    encryptedPassword = await bcrypt.hash(password, 10);
-
-    // Create user in our database
-    const user = await User.create({
-      full_name,
-      mobile,
-      email: email.toLowerCase(),
-      password: encryptedPassword,
-    });
-
-
-    // Create token
-    const token = jwt.sign(
-      { user_id: user._id, email },
-      process.env.TOKEN_KEY,
-      {
-        expiresIn: "6h",
-      }
-    );
-
-    user.token = token;
-    user.save();
-
-    res.status(201).json(user);
-
-  } catch (err) {
-    console.log(err);
-  }
-});
 
 //login
-app.post('/login', async (req, res) => {
+app.post('/api/v1/login', async (req, res) => {
 
   try {
     const { email, password } = req.body;
@@ -120,12 +79,14 @@ app.post('/login', async (req, res) => {
 
 const earphones = [
   {
-  }
+
+  },
+
   // Add more earphones as needed
 ];
 
 
-app.post("/insertProductsData", async (req, res) => {
+app.post("/api/v1/insertProductsData", async (req, res) => {
 
   try {
 
@@ -138,7 +99,7 @@ app.post("/insertProductsData", async (req, res) => {
         console.error('Error inserting dummy data:', err);
       });
 
-      res.status(201).send("data inserted successfully")
+    res.status(201).send("data inserted successfully")
 
   } catch (error) {
     console.log("data not inserted" + error);
@@ -148,7 +109,7 @@ app.post("/insertProductsData", async (req, res) => {
 
 
 //get products data
-app.get("/getProductsData", async (req, res) => {
+app.get("/api/v1/getProductsData", async (req, res) => {
   try {
     const products = await Product.find({})
     res.status(200).json(products)
@@ -157,7 +118,15 @@ app.get("/getProductsData", async (req, res) => {
   }
 })
 
-
+//get product by id
+app.get("/api/v1/getProductById/:id", async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id)
+    res.status(200).json(product)
+  } catch (error) {
+    console.log("Error getting product Detail" + error);
+  }
+})
 
 
 app.use((req, res, next) => {
