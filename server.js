@@ -121,12 +121,14 @@ app.get("/api/v1/getProductsData", async (req, res) => {
 //get product by id
 app.get("/api/v1/getProductById/:id", async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id)
+    const product = await Product.findOne({ _id: req.params.id })
     res.status(200).json(product)
   } catch (error) {
-    console.log("Error getting product Detail" + error);
+    console.error("Error getting product Detail" + error);
+    res.status(500).json({ error: 'Internal server error' });
   }
-})
+});
+
 
 
 app.use((req, res, next) => {
