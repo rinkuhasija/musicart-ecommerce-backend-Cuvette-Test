@@ -9,6 +9,7 @@ const jwt = require("jsonwebtoken");
 const Product = require("./models/productModel");
 const authRoutes = require("./routes/authRoute");
 const hashedPassword = require("./helpers/authHelper");
+const searchProductController = require("./controllers/productController")
 // const auth = require('./middleware/auth');
 // const validateJobPost = require('./middleware/validateJobPost');
 const app = express();
@@ -129,7 +130,8 @@ app.get("/api/v1/getProductById/:id", async (req, res) => {
   }
 });
 
-
+//search product
+app.get("/api/v1/searchProduct/:name", searchProductController);
 
 app.use((req, res, next) => {
   const err = new Error("Not Found")

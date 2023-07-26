@@ -54,5 +54,4 @@ const registerController = async (req, res) => {
     }
 };
 
-//export both functions
 module.exports = registerController ;
