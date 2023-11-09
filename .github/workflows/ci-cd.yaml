@@ -19,6 +19,8 @@ jobs:
           context: .
           push: true
           tags: rh5454/musicart-backend:latest
+          login: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
 
   deploy:
     runs-on: ubuntu-latest
