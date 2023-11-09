@@ -19,6 +19,7 @@ jobs:
           context: .
           push: true
           tags: rh5454/musicart-backend:latest
+          registry: docker.io
           login: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
 
